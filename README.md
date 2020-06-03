@@ -11,7 +11,7 @@ selenium으로 크롤링하기 때문에 검색에  최대 수십분 소요될 �
 검색이 완료되면 웹에는 완료 문구만 나옵니다.<br>
 결과는 DB에 저장하고, 바탕화면 폴더를 따로 생성하여 그 안에 csv 파일로 저장됩니다.<br>
 cause crawling by selenium, you can wait tens of minutes for searching<br>
-end of searching, web can show the complete ment.<br>
+if end of searching, web can show the complete phrase.<br>
 Result is input to DB and making folder with csv file is created on the Desktop.<br>
 <br><br>
 프로그램에 대한 질문사항은 언제든지 메일 주셔도 됩니다. <br>
