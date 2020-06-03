@@ -1,7 +1,7 @@
 # finding-Instagram-Influencer
 인스타그램 인플루언서를 찾아주는 프로그램입니다.
 This is finding instagram influencer program
-.
+<br>
 조건 : 해시태그 최대 5개, 팔로워 수, 게시글 수, 인플루언서 게시글에 포함된 키워드 개수
 위 조건을 입력하면 그에 맞는 인플루언서를 찾아줍니다.
 searching condition : hashtag max 5, follower number, post number, keyword count include influencer post
