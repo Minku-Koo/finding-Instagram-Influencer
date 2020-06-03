@@ -47,7 +47,7 @@ CREATE TABLE influencer_<NUMBER>(
 db = pymysql.connect(
                     host="localhost", 
                     user="root", 
-                    passwd="rnalsrn12", #rnalsrn12
+                    passwd="your -password", 
                     database="insta_data",
                     port = 3306
                     )
