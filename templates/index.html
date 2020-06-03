@@ -1,0 +1,97 @@
+﻿<!doctype html>
+<html>
+<!-- Finding Instagram Influencer -->
+<!-- Index Html File -->
+<!-- Using Selenium, BeautifulSoup4 -->
+<!-- Data in Maria DB -->
+<!-- Server by Python Flask -->
+<!-- Developer : Minku Koo -->
+<!-- E-Mail : corleone@kakao.com -->
+
+<head>
+<title>인스타그램 인플루언서 찾기</title>
+<meta charset="utf-8">
+<!--CSS 파일 불러오기-->
+<link rel="stylesheet" 
+  href="{{ url_for('static', filename='insta.css') }}">
+</head>
+<body>
+    <h1 class="title">Finding Instagram Influencer</h1>
+	<!---크롤링 조건 입력 부분-->
+	<form name="crawl_condition" action="/crawl" method="POST"> 
+		<ul class="UserInputBox">
+			<li>
+				<span>게시글 하나에 모두 포함되어야 하는 해시태그 (최대 5개)</span>
+				<br>
+				<input type="text" name="hash1" class="inputHashBox" id="hash1">
+				<button type="button" class="hashPlus" >+</button>
+				<div id="hashCount" style="display:none;">1</div>
+			</li>
+			
+			<li>
+				<span>인플루언서 게시글 개수</span>
+				<input type="text" name="post_num" class="inputBox">
+				<span> 개 이상</span>
+			</li>
+			
+			<li>
+				<span>인플루언서 팔로워 수</span>
+				<input type="text" name="follower_num" class="inputBox">
+				<span> 명 이상</span>
+			</li>
+			
+			<li>
+				<span>인플루언서 게시글에</span>
+				<br>
+				<span>키워드 </span>
+				<input type="text" name="keyword" class="inputBox">
+				<span> 가 </span>
+				<input type="text" name="keyword_num" class="inputBox">
+				<span> 개 이상 포함</span>
+			</li>
+			<div style="width:90%;margin-top:40px;">
+				<button type="submit" name="crawlStart" class="crawlStart">
+				인플루언서 찾기
+				</button>
+			</div>
+		</ul>
+	</form>
+	
+	<!--검색 끝나면 결과 텍스트 출력-->
+	<div class="result_text" style="width: 50%;
+	font-size: 23px;
+	color: blue;
+	text-align: center;
+	margin: 0 auto;">
+	{{success[0]}}
+	<br>
+	{{success[1]}}
+	</div>
+	
+	<!--JQuery 불러오기-->
+	<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
+	</script>
+	<script  type = "text/javascript">
+	    //해시태그 추가 버튼 클릭 이벤트
+		$(".hashPlus").click(function(){
+		    //기존 해시태그 입력칸 개수 불러오기--
+			var hashCount = parseInt($("#hashCount").text());
+			// 입력창 객체 생성
+			var $input = $('<input type="text" class="inputHashBox">');
+			$input.attr('name','hash'+String(hashCount+1));
+			$input.attr('id','hash'+String(hashCount+1));
+			
+			//기존 입력창 다음에 태그 추가
+			$('#hash'+String(hashCount)).after($input);
+			$("#hashCount").text(String(hashCount+1));
+			
+			if(hashCount ==4){ //최대 5개까지 가능, 5개 되면 플러스 버튼 삭제
+				$(".hashPlus").css("display","none");
+			}
+		});
+	</script>
+	
+</body>
+ 
+</html>
