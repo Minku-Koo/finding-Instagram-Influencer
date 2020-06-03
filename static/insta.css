@@ -1,0 +1,92 @@
+﻿/*인스타그램 인플루언서 찾기 - css 파일*/
+
+/* Pacifico 폰트 */
+@font-face {
+	font-family: "Pacifico"; 
+	src: url(Pacifico-Regular.ttf) format('truetype'); 
+}
+
+
+body{
+	height: 800px;
+	margin: 0;
+}
+/*타이틀 */
+.title{
+	width: 90%;
+	color: #0000FF;
+	background-color: #A9D0F5;
+	margin: 0 auto;
+	font-size: 50px;
+	text-align: center;
+	padding-bottom: 5%;
+	padding-top: 5%;
+	font-family: Pacifico;
+}
+
+/*조건 입력 박스 */
+.UserInputBox{
+	width: 40%;
+	height: 350px;
+	//border: solid 2px brown;
+	margin: 3% auto;
+	font-size: 22px;
+}
+.UserInputBox li{
+	margin-bottom: 20px;
+}
+
+/*입력 박스*/
+.inputBox{
+	width: 70px;
+	height: 20px;
+	border: 1px solid blue;
+	margin-bottom: 5px;
+	vertical-align: middle;
+}
+
+/**해시태그 입력 칸*/
+.inputHashBox{
+	width: 100px;
+	height: 20px;
+	border: 1px solid blue;
+	margin-bottom: 5px;
+	vertical-align: middle;
+	margin-right:10px;
+}
+
+/*해시태그 입력 추가 버튼*/
+.hashPlus{
+	border-radius: 50%;
+	border: 2px solid blue;
+	color: blue;
+	background-color: #FFFFFF;
+	padding:0;
+	font-size: 20px;
+	text-align: center;
+	width: 22px;
+	height: 22px;
+	vertical-align: middle;
+	margin-bottom: 5px;
+	outline: 0;
+}
+
+/*검색 버튼*/
+.crawlStart{
+	width: 160px;
+	height: 45px;
+	font-size:18px;
+	font-weight: bold;
+	border: 2px solid blue;
+	background-color: #CEE3F6;
+	
+}
+/*검색 완료 텍스트*/
+.result_text{
+	width: 40%;
+	font-size: 30px;
+	color: blue;
+	text-align: center;
+	margin: 0 auto;
+}
+
