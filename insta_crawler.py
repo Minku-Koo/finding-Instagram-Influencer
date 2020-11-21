@@ -53,12 +53,11 @@ class crawling:
     def main(self):
         indx= self.hash_low()  # 게시글 개수가 제일 적은 index 정보
         
-        print("index is ",indx)
         #제일 적은 게시글의 링크로 크롤링
         link = self.urlList[indx]
         self.driver.get(link)
         self.driver.implicitly_wait(10)
-        time.sleep(3)
+        time.sleep(2)
         
         hrefList = []
         temp = ""
@@ -70,24 +69,21 @@ class crawling:
             
             # 끝까지 가거나 or 로딩이 안되는 경우, 종료
             if temp == a_tagList:
-                print("over")
+                print("Program over..")
                 break
             temp = a_tagList
             
             for a_tag in a_tagList:
                 if "href" in a_tag.attrs: # a 태그에 있는 모든 href 정보 불러옴(게시글 링크)
                     hrefList.append(a_tag.attrs['href'])
-                    print(a_tag.attrs['href'])
             # 스크롤 맨아래로 - 새로운 HTML 생성
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            print("stop")
             self.driver.implicitly_wait(10)
             time.sleep(0.7)
             
         # URL 중복 제거
         hrefList = list(set(hrefList))
         lenUrl = len(hrefList)
-        print(lenUrl)
         time.sleep(2)
         nb = 0
         nameList =[] #게시글 포함하는 사용자 리스트 입력
@@ -99,8 +95,6 @@ class crawling:
             nb+=1
             
         nameList = list(set(nameList)) #이름 중복 제거
-        print("---nameList---")
-        print(nameList)
         
         self.driver.get("http://www.instagram.com/")
         self.driver.implicitly_wait(10)
@@ -110,7 +104,6 @@ class crawling:
         #게시글 수, 팔로워 수 만족하는 인플루언서 리스트
         nameResultDic ={}
         for name in nameList:
-            print("name :: ",name)
             name_result = self.influencerInfo(name)
             if name_result == 100: #조건 만족할 경우, 이름을 key / 팔로워와 게시글수를 value로 입력
                 nameResultDic[name] = [self.follower, self.post]
@@ -132,7 +125,6 @@ class crawling:
     
     
     def hash_low(self): #해시태그 게시글 제일 적은거 찾기
-        print("hash_low")
         #해시태그 게시글 갯수 pageCount 리스트에 추가
         pageCount = []
         for link in self.urlList:
@@ -162,8 +154,6 @@ class crawling:
         try:
             name = bs.find("h2").get_text() #사용자 이름
             content = bs.find("li", role="menuitem").get_text() #게시글 내용
-            print("name : ", name)
-            print("content : ", content)
             
             #게시글 내용 + 본인 작성 댓글 문자열로 합치기
             strList = content + self.hash_inPost(bs, name)
@@ -171,7 +161,7 @@ class crawling:
             for word in self.hash_post: 
                 if word not in strList: #해시태그가 하나라도 포함 안된 경우 종료
                     return 0
-            print("해시태그가 모두 포함된 게시글이라니 대단한걸")
+            print("해시태그가 모두 포함된 게시글")
             return name #해시태그 모두 포함될 경우 이름 리턴
             
         except(AttributeError):
@@ -204,25 +194,22 @@ class crawling:
             post_num = li[0].get_text()
             post_num = korean.sub('', post_num) #한국어 제거
             post_num = post_num.replace(',', '').replace(' ', '') #특수문자 제거
-            print(post_num+" 개의 게시글")
             
             follower = str(li[1].find("span")['title']).replace(',', '')
-            print("팔로워 : "+follower)
             
             #게시글 수와 팔로워 수 조건 만족 경우
             if int(post_num) >= self.post_over and int(follower) >= self.follower_over :
-                print("You are influencer")
-                print(name)
+                
                 #딕셔너리 입력을 위한 클래스 변수에 입력
                 self.post = post_num
                 self.follower = follower
                 return 100 # 게시글 팔로워 조건 만족하는 경우
                 
         except(AttributeError):
-            print("어딘가 에러")
+            print("Somewhere Error!")
             return 0
         except(KeyError):
-            print("no title value")
+            print("No title value")
             return 0
         except(TypeError):
             print("TypeError")
@@ -237,11 +224,10 @@ class crawling:
                 if span_name.get_attribute("aria-label") != None and \
                 "Load more" in span_name.get_attribute("aria-label"):
                     span_name.click()
-                    print("더보기 클릭")
                     time.sleep(0.6)
                     break
             except(selenium.common.exceptions.StaleElementReferenceException):
-                print("i dont know err")
+                print("I dont know err")
         #답글 클릭
         try:
             for btn_name in self.driver.find_elements_by_tag_name("button"):
@@ -271,10 +257,8 @@ class crawling:
             #작성자 본인이 쓴 댓글 - 해시태그 있음
             if comment.find("h3") != None and comment.find("h3").get_text() == user_name: #본인 댓글일 경우
                 comment_hash = comment.find_all("a") #본인 댓글의 모든 해시태그 읽어들임
-                print("---본인 작성 댓글 있다 ---")
                 for a in comment_hash: #해시태그 전부 긁어와서 result에 추가
                     result += a.get_text()
-                    print("나는 본인작성 댓글의 해시태그")
         return result #본인작성댓글 문자열로 반환
             
         return '' #본인 작성 댓글 없음
@@ -282,7 +266,7 @@ class crawling:
     #인플루언서 게시글 안에 해시태그 몇개 포함되어있는지 확인하기
     def influencer_post_hash(self, name, hash_number):
         if self.keyword_post == '':
-            print("키워드 없다")
+            print("No Keyword")
             return 9999
         
         url = "https://www.instagram.com/"+name+"/?hl=ko"
@@ -291,13 +275,12 @@ class crawling:
         
         post_re = re.compile('/p/.*')
         linkList , temp= [], ''
-        print("a tag print\n\n")
         #인플루언서 게시글 링크 모두 수집
         for i in range(1000):
             bs = BeautifulSoup(self.driver.page_source, 'html.parser')
             a_tag = bs.findAll("a")
             if temp == a_tag:
-                print("over")
+                print("over..")
                 break
             temp = a_tag
             

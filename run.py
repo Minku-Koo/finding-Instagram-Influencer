@@ -5,7 +5,7 @@
 # made by Koo Minku
 # developer E-mail : corleone@kakao.com
 
-from insta_crawler import crawling
+from insta_crawler import crawling # Library Import
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -19,7 +19,7 @@ from pathlib import Path
 import pymysql
 
 app = Flask(__name__)
-app.secret_key = 'd0nt/look6acK_1nA2ger'
+app.secret_key = 'd0nt/look6a+4/cK_1nA2ger'
 
 """
 MariaDB database information
@@ -47,7 +47,7 @@ CREATE TABLE influencer_<NUMBER>(
 db = pymysql.connect(
                     host="localhost", 
                     user="root", 
-                    passwd="your -password", 
+                    passwd="", #your Password
                     database="insta_data",
                     port = 3306
                     )
@@ -75,7 +75,6 @@ def index():
 #크롤링 시작 함수
 @app.route('/crawl', methods=['POST'])
 def insta_crawlStart():
-    print("insta_crawlStart")
     #웹에서 입력 받기
     post_num = request.form['post_num']
     follower_num = request.form['follower_num']
@@ -86,7 +85,6 @@ def insta_crawlStart():
         try:
             hash.append(request.form['hash'+str(i+1)])
         except(KeyError): #해시태그 입력이 5개 미만
-            print("hash end : ",i)
             break
     
     #입력 오류 검사
@@ -108,14 +106,7 @@ def insta_crawlStart():
         print("해시태그는 하나 이상 포함되어있어야 합니다.")
         return "<script>alert('해시태그는 하나 이상 포함되어있어야 합니다.');\
         window.location.replace('/');</script>"
-    
-    print("**"*20)
-    print(hash)
-    print("post_num : ", post_num)
-    print("follower_num : ", follower_num)
-    print("keyword : ", keyword)
-    print("keyword_num : ", keyword_num)
-    
+   
     #해시태그 합치기
     hash_db=""
     for h in hash:
@@ -137,8 +128,6 @@ def insta_crawlStart():
     #클래스 생성
     insta = crawling(hash,keyword,int(keyword_num),int(follower_num),int(post_num))
     result = insta.main() # result는 딕셔너리, 크롤링 결과 저장
-    print("----final----")
-    print(result)
     
     #DB에 검색 결과 입력
     for name in result.keys():
@@ -154,11 +143,10 @@ def insta_crawlStart():
         try:
             if not(os.path.isdir(dir_name)):
                 os.makedirs(os.path.join(dir_name))
-                print("make dir : ",dir_name)
                 break
             else: dir_name= dir_name[:-3]+"("+str(n)+")"
         except(OSError):
-            print("Failed to create directory!!!!!")
+            print("Failed to create directory!!!")
     
     #생성한 폴더에 결과값 파일 생성
     with open(dir_name+"\insta_influencer_file.csv", 'w',newline="") as f:
@@ -166,7 +154,6 @@ def insta_crawlStart():
         wr.writerow(["이름", "게시글 수", "팔로워 수"])
         for dic in result.keys():
             wr.writerow([dic, result[dic][0], result[dic][1]])
-        print("make file1")
     
     #게시글 기준 내림차순 정렬
     with open(dir_name+"\insta_influencer_file_post.csv", 'w',newline="") as f:
@@ -176,7 +163,6 @@ def insta_crawlStart():
         wr.writerow(["이름", "게시글 수", "팔로워 수"])
         for dic in list:
             wr.writerow([dic[1], dic[2], dic[3]])
-        print("make file2")
             
     #팔로워 기준 내림차순 정렬
     with open(dir_name+"\insta_influencer_file_follower.csv", 'w',newline="") as f:
@@ -186,7 +172,6 @@ def insta_crawlStart():
         wr.writerow(["이름", "게시글 수", "팔로워 수"])
         for dic in list:
             wr.writerow([dic[1], dic[2], dic[3]])
-        print("make file3")
     
     cursor.close()
     db.close()
