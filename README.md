@@ -1,6 +1,6 @@
-# finding-Instagram-Influencer
+# Finding-Instagram-Influencer
 ### 인스타그램 인플루언서를 찾아주는 프로그램입니다.<br>
-**This is finding instagram influencer program**
+**This is Finding Instagram Influencer Program**
 <br><br>
 * 조건 : 해시태그 최대 5개, 팔로워 수, 게시글 수, 인플루언서 게시글에 포함된 키워드 개수<br>
 * 위 조건을 입력하면 그에 맞는 인플루언서를 찾아줍니다.<br><br>
@@ -18,7 +18,7 @@ Result is input to DB and making folder with csv file is created on the Desktop.
 **메인 화면 Index Page**<br>
 ![web-캡쳐](https://user-images.githubusercontent.com/25974226/99886216-23058d80-2c7e-11eb-97cb-121b212a11a7.PNG)
 <br><br>
-**결과 화면 Result Page**<br>   
+**결과 화면 Result Page**<br>
 ![web-결과](https://user-images.githubusercontent.com/25974226/99886220-2ac53200-2c7e-11eb-991d-94ee0aa60c87.PNG)
 <br><br>
 **결과 파일 형태 Result File List**<br>
