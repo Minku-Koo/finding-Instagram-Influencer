@@ -1,5 +1,5 @@
 # finding-Instagram-Influencer
-인스타그램 인플루언서를 찾아주는 프로그램입니다.<br>
+### 인스타그램 인플루언서를 찾아주는 프로그램입니다.<br>
 **This is finding instagram influencer program**
 <br><br>
 * 조건 : 해시태그 최대 5개, 팔로워 수, 게시글 수, 인플루언서 게시글에 포함된 키워드 개수<br>
@@ -14,7 +14,7 @@ Cause crawling by selenium, You can wait tens of minutes for searching<br>
 If end of searching, Web can show the complete phrase.<br>
 Result is input to DB and making folder with csv file is created on the Desktop.<br>
 ------------------------------------------------------
-## Example
+### Example
 **메인 화면 Index Page**<br>
 ![web-캡쳐](https://user-images.githubusercontent.com/25974226/99886216-23058d80-2c7e-11eb-97cb-121b212a11a7.PNG)
 <br><br>
