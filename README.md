@@ -9,16 +9,16 @@
 <br><br>
 selenium으로 크롤링하기 때문에 검색에  최대 수십분 소요될 수 있습니다.<br>
 검색이 완료되면 웹에는 완료 문구만 나옵니다.<br>
-결과는 DB에 저장하고, 바탕화면 폴더를 따로 생성하여 그 안에 csv 파일로 저장됩니다.<br>
+결과는 DB에 저장하고, 바탕화면 폴더를 따로 생성하여 그 안에 csv 파일로 저장됩니다.<br><br>
 Cause crawling by selenium, You can wait tens of minutes for searching<br>
 If end of searching, Web can show the complete phrase.<br>
 Result is input to DB and making folder with csv file is created on the Desktop.<br>
 ------------------------------------------------------
-### Example
+## Example
 **메인 화면 Index Page**<br>
 ![web-캡쳐](https://user-images.githubusercontent.com/25974226/99886216-23058d80-2c7e-11eb-97cb-121b212a11a7.PNG)
 <br><br>
-**결과 화면 Result Page**<br>
+**결과 화면 Result Page**<br>   
 ![web-결과](https://user-images.githubusercontent.com/25974226/99886220-2ac53200-2c7e-11eb-991d-94ee0aa60c87.PNG)
 <br><br>
 **결과 파일 형태 Result File List**<br>
@@ -31,4 +31,4 @@ Result is input to DB and making folder with csv file is created on the Desktop.
 <br>
 프로그램에 대한 질문사항은 언제든지 메일 주셔도 됩니다. <br>
 Anytime you can ask me Question about program.<br><br>
-- Developer E-mail :  corleone@kakao.com
+* Developer E-mail :  corleone@kakao.com
