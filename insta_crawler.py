@@ -1,9 +1,14 @@
-﻿# python
-# finding instagram influencer program
-# crawler
-# project start 2020.05.20
-# made by Koo Minku
-# developer E-mail : corleone@kakao.com
+﻿
+"""
+Project Name : Finding Instagram Influencer Program
+Create Date : 20/May/2020
+Author : Minkuk Koo
+E-Mail : corleone@kakao.com
+Version : 1.1.0
+Keyword : 'selenium', 'crawling', 'Flask' ,'BeautifulSoup', 'Instagram', 'Influencer'
+
+* Please, Input your personal Instagram email and password
+"""
 
 import requests
 from bs4 import BeautifulSoup
@@ -45,8 +50,8 @@ class crawling:
         # 최종 결과 입력을 위한 클래스 변수
         self.follower = 0
         self.post = 0
-        #로그인이 안될 경우, 로그인을 위한 이메일과 비밀번호 정보
-        self.my_account = ['koomk97@hanmail.net', 'koomk1204?', 1]
+        #로그인이 안될 경우, 로그인을 위한 이메일과 비밀번호 정보/ 1이면 facebook, 0이면 instagram 계정
+        self.my_account = ['your email', 'your password', 1]
         
         pass
         
@@ -127,12 +132,19 @@ class crawling:
     def hash_low(self): #해시태그 게시글 제일 적은거 찾기
         #해시태그 게시글 갯수 pageCount 리스트에 추가
         pageCount = []
+        self.driver.get(self.urlList[0])
+        self.driver.implicitly_wait(10)
+        #로그인 페이지 뜰 경우
+        if "instagram.com/accounts/login" in self.driver.current_url :
+            #로그인 함수
+            self.insta_login()
+            self.driver.implicitly_wait(10)
+        
         for link in self.urlList:
             self.driver.get(link)
-            self.driver.implicitly_wait(3) # 로딩까지 3초 기다리기
+            self.driver.implicitly_wait(10) 
             #게시글 개수 표시된 tag
-            count = self.driver.find_element_by_xpath('//*[@id="react-root"]/\
-            section/main/header/div[2]/div[1]/div[2]/span/span').text
+            count = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/header/div[2]/div/div[2]/span/span').text
             
             count = count.replace(',', '')
             pageCount.append(int(count))

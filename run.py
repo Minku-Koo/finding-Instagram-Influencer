@@ -1,9 +1,13 @@
-﻿# python
-# finding instagram influencer program
-# server flask
-# project start 2020.05.20
-# made by Koo Minku
-# developer E-mail : corleone@kakao.com
+﻿"""
+Project Name : Finding Instagram Influencer Program
+Create Date : 20/May/2020
+Author : Minkuk Koo
+E-Mail : corleone@kakao.com
+Version : 1.1.0
+Keyword : 'selenium', 'crawling', 'Flask' ,'BeautifulSoup', 'Instagram', 'Influencer'
+
+* Please, Input your personal Instagram email and password
+"""
 
 from insta_crawler import crawling # Library Import
 import re
