@@ -1,11 +1,11 @@
 ﻿
 """
-Project Name : Finding Instagram Influencer Program
+Project Name : Finding Instagram Influencer
 Create Date : 20/May/2020
+Update Date : 15/Mar/2021
 Author : Minkuk Koo
 E-Mail : corleone@kakao.com
-Version : 1.1.0
-Keyword : 'selenium', 'crawling', 'Flask' ,'BeautifulSoup', 'Instagram', 'Influencer'
+Version : 1.2.1
 
 * Please, Input your personal Instagram email and password
 """
@@ -16,47 +16,68 @@ import urllib.request
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
-import selenium
-import requests
+import selenium, time, re
 from selenium.webdriver.support.ui import WebDriverWait
-import time
-import re
 
-
-class crawling:
-    def __init__(self, hash_post,keyword_post,hash_all_n,follower_over,post_over):
+class instaCrawl:
+    def __init__(self, 
+                hash_post,
+                keyword_post,
+                keyword_include_count,
+                follower_over,
+                post_over):
+        """
+        Parameters
+            hash_post <str in list> : is hash tag in post?
+            keyword_post <str> : is keyword in post?
+            keyword_include_count <int> : how many keyword in posts
+            follower_over <int> : followers count
+            post_over <int> : posts count
+        
+        """
+        self.hash_post = hash_post
+        self.keyword_post = keyword_post
+        self.keyword_include_count = keyword_include_count
+        self.follower_over = follower_over
+        self.post_over = post_over
+        
+        # 최종 결과 입력을 위한 클래스 변수
+        self.follower = 0
+        self.post = 0
+        
         self.options = webdriver.ChromeOptions()
         self.options.add_argument('headless')
         self.options.add_argument('--disable-gpu')
         self.options.add_argument('lang=ko_KR')
         
         # selenium 크롤링을 위한 크롬 드라이버 생성
-        self.driver = webdriver.Chrome('./crawler/drivers/chromedriver.exe', chrome_options=self.options)
-        #self.driver = webdriver.Chrome('./crawler/drivers/chromedriver.exe')
+        self.driver = webdriver.Chrome(
+                                './crawler/drivers/chromedriver.exe', 
+                                chrome_options=self.options
+                                )
         self.driver.implicitly_wait(3)
-        print("crawling start")
-        
-        self.hash_post = hash_post
-        self.keyword_post = keyword_post
-        self.hash_all_n = hash_all_n
-        self.follower_over = follower_over
-        self.post_over = post_over
         
         # 해시태그를 통한 URL 리스트 생성
         self.urlList = []
         for hash in self.hash_post:
             self.urlList.append("https://www.instagram.com/explore/tags/"+hash+"/?hl=ko")
         
-        # 최종 결과 입력을 위한 클래스 변수
-        self.follower = 0
-        self.post = 0
+        
         #로그인이 안될 경우, 로그인을 위한 이메일과 비밀번호 정보/ 1이면 facebook, 0이면 instagram 계정
-        self.my_account = ['your email', 'your password', 1]
+        # for login
+        # 1 : facebook account
+        # 2 : instagram account
+        self.__myAccount = ['your email', 'your password', 1]
         
-        pass
-        
-    def main(self):
-        indx= self.hash_low()  # 게시글 개수가 제일 적은 index 정보
+    
+    def crawler(self):
+        # if page cannot load -> time delay and reload
+        def time_delay(soup, delay):
+            time.sleep(delay)
+            a_tag_list = soup.findAll("a")
+            return a_tag_list
+            
+        indx= self.__get_min_post()  # 게시글 개수가 제일 적은 index 정보
         
         #제일 적은 게시글의 링크로 크롤링
         link = self.urlList[indx]
@@ -64,150 +85,187 @@ class crawling:
         self.driver.implicitly_wait(10)
         time.sleep(2)
         
-        hrefList = []
+        post_list = [] # hashtag post link
         temp = ""
         
-        for i in range(2000):
-            # 동적 HTML 크롤링, javascript로 생성된 HTML을 불러옴
+        for i in range(2000): # max scroll times = 2000
+            # dynamin HTML Page crawling, call HTML made by Javascript
             soup = BeautifulSoup(self.driver.page_source)
-            a_tagList = soup.findAll("a") #모든 a 태그 찾아냄
+            a_tag_list = soup.findAll("a") # find all <a> tag
             
             # 끝까지 가거나 or 로딩이 안되는 경우, 종료
-            if temp == a_tagList:
-                print("Program over..")
-                break
-            temp = a_tagList
+            if temp == a_tag_list: 
+                a_tag_list = time_delay(soup, 2)
+                if temp == a_tag_list: 
+                    a_tag_list = time_delay(soup, 1)
+                    if temp == a_tag_list:
+                        print("Program over..")
+                        break
+                        
+            temp = a_tag_list
             
-            for a_tag in a_tagList:
-                if "href" in a_tag.attrs: # a 태그에 있는 모든 href 정보 불러옴(게시글 링크)
-                    hrefList.append(a_tag.attrs['href'])
-            # 스크롤 맨아래로 - 새로운 HTML 생성
+            # scroll to Bottom, load new post
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             self.driver.implicitly_wait(10)
-            time.sleep(0.7)
-            
+            time.sleep(1)
+        
+            for a_tag in a_tag_list:
+                if "href" in a_tag.attrs: # a 태그에 있는 모든 href 정보 불러옴(게시글 링크)
+                    post_list.append( a_tag.attrs['href'] )
+        
         # URL 중복 제거
-        hrefList = list(set(hrefList))
-        lenUrl = len(hrefList)
-        time.sleep(2)
-        nb = 0
-        nameList =[] #게시글 포함하는 사용자 리스트 입력
-        for link in hrefList: #링크 하나씩 읽어들임 - by postInfo()
-            result = self.postInfo(link)
-            if result != 0: #이름 return한 경우
-                nameList.append(result) #이름 리스트 추가
-            print(str(nb)+' / '+str(lenUrl)) #진행상황 cmd에 출력
-            nb+=1
+        post_list = list(set(post_list))
+        
+        url_count = len(post_list)
+        time.sleep(1)
+        
+        post_number = 0 # for process percent
+        nameList =[] # 수집한 포스트 링크의 모든 user 
+        
+        for link in post_list: #링크 하나씩 읽어들임 - by __getPostName()
+            post_name = self.__getPostName(link)
+            if post_name != 0: # if user name return
+                nameList.append(post_name)
+                
+            print(str(post_number)+' / '+str(url_count)) # print process on cmd
+            post_number+=1 
             
         nameList = list(set(nameList)) #이름 중복 제거
         
         self.driver.get("http://www.instagram.com/")
         self.driver.implicitly_wait(10)
-        print("go to home..")
+        print("go to intagram home..")
         time.sleep(1)
         
         #게시글 수, 팔로워 수 만족하는 인플루언서 리스트
         nameResultDic ={}
         for name in nameList:
-            name_result = self.influencerInfo(name)
-            if name_result == 100: #조건 만족할 경우, 이름을 key / 팔로워와 게시글수를 value로 입력
+            if self.__getUserData(name) == 1: #조건 만족할 경우
+                # 이름을 key, 팔로워와 게시글수를 value로 입력
                 nameResultDic[name] = [self.follower, self.post]
         
-        print("-------- nameResultDic----------")
-        print(nameResultDic)
-        
         #인플루언서 리스트 게시글 정보 확인하기
-        #게시글에 해시태그 몇개 포함되어있는지 확인
-        influencer = {}
-        if self.keyword_post == '': #키워드가 없으면 그대로 반환
+        #게시글에 키워드 몇개 포함되어있는지 확인
+        if self.keyword_post == '': # 포함해야할 키워드가 없으면 그대로 반환
             return nameResultDic
+            
+        influencer = {} # 키워드 검사 변수
         for name in nameResultDic.keys():
-            #입력한 포함 개수보다 많을 경우
-            if self.hash_all_n <= self.influencer_post_hash(name, self.hash_all_n):
-                print("You r real influencer..!!\n")
+            #입력한 키워드 포함 개수보다 많을 경우
+            if self.keyword_include_count <= self.__getKeywordCount(name, self.keyword_include_count):
+                print("You are real influencer..!! >>", name)
                 influencer[name] = nameResultDic[name]
+                
         return influencer
     
-    
-    def hash_low(self): #해시태그 게시글 제일 적은거 찾기
+    # find minimun post about hashtag / 해시태그 게시글 제일 적은거 찾기
+    def __get_min_post(self): 
         #해시태그 게시글 갯수 pageCount 리스트에 추가
         pageCount = []
         self.driver.get(self.urlList[0])
+        print("driver move to :",self.urlList[0])
         self.driver.implicitly_wait(10)
         #로그인 페이지 뜰 경우
         if "instagram.com/accounts/login" in self.driver.current_url :
             #로그인 함수
-            self.insta_login()
+            self.__insta_login()
+            print("로그인 완료")
             self.driver.implicitly_wait(10)
+            time.sleep(3)
+            print("now url: ",self.driver.current_url)
+            if "instagram.com/accounts/login" in self.driver.current_url :
+                print("또 어카운트 에러")
+                keepGoing_by_myAccount = self.driver.find_elements_by_tag_name("button")[1]
+                keepGoing_by_myAccount.click()
+                print("어카운트 에러 확인 완료")
+            self.driver.implicitly_wait(10)
+        time.sleep(1)
+        try:
+            bs = BeautifulSoup(self.driver.page_source, 'html.parser')
+            dialog_box_class = bs.find("div", role="dialog")['class']
+            dialog = self.driver.find_element_by_class_name(dialog_box_class)
+            print("다이어로그 클릭")
+            dialog.click()
+            self.driver.implicitly_wait(10)
+        except:
+            print("문제 없음")
+            pass
         
         for link in self.urlList:
             self.driver.get(link)
+            print("driver move to 2 :",self.urlList[0])
             self.driver.implicitly_wait(10) 
             #게시글 개수 표시된 tag
-            count = self.driver.find_element_by_xpath('//*[@id="react-root"]/section/main/header/div[2]/div/div[2]/span/span').text
+            print("get min post 에러")
+            post_count_xpath = '//*[@id="react-root"]/section/main/header/div[2]/div/div[2]/span/span'
+            count = self.driver.find_element_by_xpath(post_count_xpath).text
             
             count = count.replace(',', '')
             pageCount.append(int(count))
             
         return pageCount.index(min(pageCount)) #가장 적은 값의 인덱스 반환
         
+    #check hashtag in post
+    def __getPostName(self, link):
+        """
+        Parameters
+            link <str> : post link
         
-    def postInfo(self, link):
-        #이름은 h2 tag
-        #혹은 header 안에 있는 a 태그
-        post_re = re.compile('/p/.*') #게시글 링크 조건
-        if post_re.match(link) == None: #정규표현식과 일치하지 않을때 = 게시글 링크 아닐 경우
+        returns
+            name <str> : user name if hash tag in post
+            0 <int> : hash tag not in post
+        """
+        post_condition = re.compile('/p/.*') # post url condition
+        if post_condition.match(link) == None: #정규표현식과 일치하지 않을때 = 게시글 링크 아닐 경우
             return 0
         
         self.driver.get("http://www.instagram.com"+link)
-        self.driver.implicitly_wait(4)
+        self.driver.implicitly_wait(5)
+        time.sleep(0.2)
         bs = BeautifulSoup(self.driver.page_source, 'html.parser')
         
         try:
-            name = bs.find("h2").get_text() #사용자 이름
-            content = bs.find("li", role="menuitem").get_text() #게시글 내용
+            name = bs.find("h2").get_text() # user name
+            content = bs.find("li", role="menuitem").get_text() # post content
             
-            #게시글 내용 + 본인 작성 댓글 문자열로 합치기
-            strList = content + self.hash_inPost(bs, name)
+            #게시글 내용 + 본인 작성 댓글 -> 문자열로 합치기
+            post_content = content + self.get_hash_in_post( name)
             #해시태그가 게시글에 포함된 경우 찾기
             for word in self.hash_post: 
-                if word not in strList: #해시태그가 하나라도 포함 안된 경우 종료
+                if word not in post_content: #해시태그가 하나라도 포함 안된 경우 종료
                     return 0
-            print("해시태그가 모두 포함된 게시글")
-            return name #해시태그 모두 포함될 경우 이름 리턴
+            print("All Hashtag in Post")
+            return name # 해시태그 모두 포함될 경우 이름 리턴
             
-        except(AttributeError):
-            return 0
-        except(OSError):
+        except :
             return 0
         
-        print("not include")
+        print("hashtag not include")
         return 0 # 키워드 포함 안될 경우
     
-    #게시글 팔로우 확인
-    def influencerInfo(self, name):
+    # check users followers number
+    def __getUserData(self, name):
         url = "https://www.instagram.com/"+name+"/?hl=ko"
         self.driver.get(url)
         self.driver.implicitly_wait(10)
         time.sleep(0.5)
         
-        #로그인 페이지 뜰 경우
+        # if load Login page
         if "instagram.com/accounts/login/" in self.driver.current_url :
-            #로그인 함수
-            self.insta_login()
+            # go login
+            self.__insta_login()
         
-        time.sleep(2)
+        time.sleep(1)
         bs = BeautifulSoup(self.driver.page_source, 'html.parser')
         try:
-            header = bs.find("ul") #인플루언서 정보 부분 - 게시물 팔로워 팔로우
             li = bs.find_all("li")
-            
             korean = re.compile("[가-힣]")
-            post_num = li[0].get_text()
-            post_num = korean.sub('', post_num) #한국어 제거
-            post_num = post_num.replace(',', '').replace(' ', '') #특수문자 제거
             
-            follower = str(li[1].find("span")['title']).replace(',', '')
+            post_num = li[0].get_text()
+            post_num = korean.sub('', post_num) # remove koream
+            post_num = post_num.replace(',', '').replace(' ', '') # remove  special character
+            
+            follower = str(li[1].find("span")['title']).replace(',', '') # get followers number
             
             #게시글 수와 팔로워 수 조건 만족 경우
             if int(post_num) >= self.post_over and int(follower) >= self.follower_over :
@@ -215,71 +273,98 @@ class crawling:
                 #딕셔너리 입력을 위한 클래스 변수에 입력
                 self.post = post_num
                 self.follower = follower
-                return 100 # 게시글 팔로워 조건 만족하는 경우
+                return 1 # 게시글 팔로워 조건 만족하는 경우
                 
-        except(AttributeError):
-            print("Somewhere Error!")
-            return 0
+        
         except(KeyError):
             print("No title value")
             return 0
         except(TypeError):
             print("TypeError")
             return 0
+        except:
+            print("Somewhere Error!")
+            return 0
 
-    #게시글 본인 댓글 불러오기
-    def hash_inPost(self, bs, user_name):
-        result = '' #본인 작성 댓글 있으면, 문자열로 합쳐서 반환
+    # 게시글 내용 + 본인 작성 댓글 불러오기
+    def __get_all_post_content(self, user_name):
+        """
+        Parameters
+            user_name <str> : user name
+        
+        returns
+            result <str> : post contetn + user comment and reply
+        
+        """
+        
+        #본인 작성 댓글 있으면, 문자열로 합쳐서 반환
+        result = ''  # 합친 문자열 반환
+        
+        try: self.driver.find_elements_by_tag_name("span")
+        except: time.sleep(1)
+        
         #더보기 클릭
         for span_name in self.driver.find_elements_by_tag_name("span"):
             try:
                 if span_name.get_attribute("aria-label") != None and \
                 "Load more" in span_name.get_attribute("aria-label"):
-                    span_name.click()
-                    time.sleep(0.6)
+                    span_name.click() # 댓글 더보기 클릭
+                    time.sleep(0.3)
                     break
-            except(selenium.common.exceptions.StaleElementReferenceException):
-                print("I dont know err")
+            except :
+                pass
+                
         #답글 클릭
         try:
             for btn_name in self.driver.find_elements_by_tag_name("button"):
-                if "(1개)" in btn_name.text :
-                    print("CLICKKKK")
+                if "(1개)" in btn_name.text : # 본인 해시태그 댓글은 대부분 답글이 1개
                     btn_name.click()
-        except(selenium.common.exceptions.StaleElementReferenceException):
-            print("the error")
+        except :
+            print("reply click error")
+            pass
                 
         bs = BeautifulSoup(self.driver.page_source, 'html.parser')
         ul_view = bs.find_all("ul")
-        ran = 0
+        
+        index = 0
         comment_view = ul_view
-        for ul in ul_view:
+        for ul in ul_view: # 댓글 화면 찾기
             comment_view = ul
             #a 태그를 제거했을 때, 아무것도 없으면 댓글화면이 아님
             for a in ul.select('a'):
                 a.extract()
+                
             if ul.get_text() != "" or ul.get_text() == None: #댓글화면일 경우
                 bs = BeautifulSoup(self.driver.page_source, 'html.parser')
-                comment_view = bs.find_all("ul")[ran]
+                comment_view = bs.find_all("ul")[index]
                 break
-            ran +=1
-        result=''
-        for comment in comment_view.find_all("li"): # li태그가 모든 댓글, comment = 본인 댓글창
+            index +=1
             
-            #작성자 본인이 쓴 댓글 - 해시태그 있음
+        result=''
+        for comment in comment_view.find_all("li"): #  <li> is comment 
+            
+            # user comment  and has hashtag
             if comment.find("h3") != None and comment.find("h3").get_text() == user_name: #본인 댓글일 경우
-                comment_hash = comment.find_all("a") #본인 댓글의 모든 해시태그 읽어들임
-                for a in comment_hash: #해시태그 전부 긁어와서 result에 추가
-                    result += a.get_text()
+                comment_hash = comment.find_all("a") # get hashtag in user comment
+                for hash in comment_hash: # hashtag appent to result
+                    result += hash.get_text()
         return result #본인작성댓글 문자열로 반환
             
-        return '' #본인 작성 댓글 없음
-    
-    #인플루언서 게시글 안에 해시태그 몇개 포함되어있는지 확인하기
-    def influencer_post_hash(self, name, hash_number):
-        if self.keyword_post == '':
+    #인플루언서 게시글 안에 키워드 몇개 포함되어있는지 확인하기
+    # how many keyword in user post
+    def __getKeywordCount(self, name, keyword_number):
+        """
+        Parameters
+            name <str> : user name
+            keyword_number <int> : keyword count
+            
+        returns
+            keyword_count <int> : keyword count in post
+        """
+        
+        if self.keyword_post == '': # no keyword
             print("No Keyword")
-            return 9999
+            return 999
         
         url = "https://www.instagram.com/"+name+"/?hl=ko"
         self.driver.get(url)
@@ -288,16 +373,17 @@ class crawling:
         post_re = re.compile('/p/.*')
         linkList , temp= [], ''
         #인플루언서 게시글 링크 모두 수집
-        for i in range(1000):
+        # scrap all post link in user
+        for i in range(2000):
             bs = BeautifulSoup(self.driver.page_source, 'html.parser')
             a_tag = bs.findAll("a")
             if temp == a_tag:
-                print("over..")
                 break
             temp = a_tag
             
             for link in a_tag:
-                # a 태그에 있는 모든 href 정보 불러옴 and 게시글 링크인 경우
+                # 게시글 링크가 맞는 경우
+                # a 태그에 있는 모든 href 정보(= link) 불러옴
                 if "href" in link.attrs and post_re.match(link.attrs['href']) != None: 
                     linkList.append(link.attrs['href'])
             
@@ -310,46 +396,45 @@ class crawling:
         linkList = list(set(linkList))
         
         #게시글에 포함된 키워드 확인
-        hash_count =0
-        non_post = []
+        keyword_count =0
+        no_keyword_post = []
         for link in linkList: #게시글 전부 탐색
             self.driver.get("https://www.instagram.com"+link+"?hl=ko")
             self.driver.implicitly_wait(10)
             
             bs = BeautifulSoup(self.driver.page_source, 'html.parser')
-            comment_view = bs.find("ul") #게시글+댓글 창
+            comment_view = bs.find("ul") #게시글+댓글
             try:
                 content = bs.find("li", role="menuitem").get_text() #게시글 내용
             except(AttributeError):
                 continue
             
-            if self.keyword_post in content+self.hash_inPost(bs, name):
-                print("키워드가 게시글 내용에 포함")
-                hash_count += 1
+            # if keyword in post
+            if self.keyword_post in content+self.__get_all_post_content(name):
+                print("Keyword in Post content")
+                keyword_count += 1
                 
-            if hash_count >= hash_number: #입력한 개수 이상일 경우
-                print("게시글에 해시태그 다있음-- 성공이야")
-                print("해시태그 개수 =>> ",hash_count)
-                return hash_count
+            if keyword_count >= keyword_number: #입력한 개수 이상일 경우
+                print("Keyword in post")
+                print("키워드 개수 : ",keyword_count)
+                return keyword_count
                 
-            print("해시태그 개수 : ",hash_count)
-            non_post.append(hash_count)
+            print("키워드 개수 : ",keyword_count)
+            no_keyword_post.append(keyword_count)
             # 게시글 80% 이상을 읽을때까지 포함된 키워드가 하나도 없을 경우 -> 키워드와 관련 없는 인플루언서로 판단
-            if int(len(linkList)*0.8) < len(non_post) and len(set(non_post)) =={0}:
+            if int(len(linkList)*0.8) < len(no_keyword_post) and len(set(no_keyword_post)) =={0}:
                 print("90% 이상 게시글이 해시태그 포함하지 않음")
                 return 0
-        return hash_count
+        return keyword_count
             
     #인스타그램 로그인
-    def insta_login(self):
-        print("login function start")
+    def __insta_login(self):
         
-        id = self.my_account[0]
-        pw = self.my_account[1]
-        facebook = self.my_account[2]
+        id = self.__myAccount[0] 
+        pw = self.__myAccount[1]
+        facebook = self.__myAccount[2]
         
-        
-        if facebook == 1: #페이스북으로 로그인한 경우
+        if facebook == 1: # if login by facebook account
             print("facebook login")
             login_form = self.driver.find_element_by_tag_name("form")
             login_form.find_elements_by_tag_name("button")[1].click()
@@ -364,7 +449,7 @@ class crawling:
             self.driver.find_element_by_id("loginbutton").click()
             
             
-        else: #인스타그램 계정 따로 회원가입한 경우
+        else:  # if login by instagram account
             print("instagram login")
             login = self.driver.find_element_by_tag_name('input')
             id_input = login.find_element_by_name("username")
@@ -377,7 +462,8 @@ class crawling:
         
         self.driver.implicitly_wait(10)
         time.sleep(3)
-        return 0
+        
+        return 
         
         
         

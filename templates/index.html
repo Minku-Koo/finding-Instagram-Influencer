@@ -1,19 +1,22 @@
 ﻿<!doctype html>
 <html>
-<!-- Finding Instagram Influencer -->
-<!-- Index Html File -->
-<!-- Using Selenium, BeautifulSoup4 -->
-<!-- Data in Maria DB -->
-<!-- Server by Python Flask -->
-<!-- Developer : Minku Koo -->
-<!-- E-Mail : corleone@kakao.com -->
+<!--
+Finding Instagram Influencer 
+Index Html File
+Author : Minku Koo
+E-Mail : corleone@kakao.com 
+-->
 
 <head>
-<title>인스타그램 인플루언서 찾기</title>
+<title>Finding Instagram Influencer</title>
 <meta charset="utf-8">
-<!--CSS 파일 불러오기-->
+<!--get CSS-->
 <link rel="stylesheet" 
-  href="{{ url_for('static', filename='insta.css') }}">
+		href="{{ url_for('static', filename='insta.css') }}">
+<!--get JQuery-->
+<script type="text/javascript"
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
+</script>
 </head>
 <body>
     <h1 class="title">Finding Instagram Influencer</h1>
@@ -59,19 +62,16 @@
 	
 	<!--검색 끝나면 결과 텍스트 출력-->
 	<div class="result_text" style="width: 50%;
-	font-size: 23px;
-	color: blue;
-	text-align: center;
-	margin: 0 auto;">
-	{{success[0]}}
-	<br>
-	{{success[1]}}
+									font-size: 23px;
+									color: blue;
+									text-align: center;
+									margin: 0 auto;">
+		{{success[0]}}
+		<br>
+		{{success[1]}}
 	</div>
 	
-	<!--JQuery 불러오기-->
-	<script type="text/javascript"
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
-	</script>
+	
 	<script  type = "text/javascript">
 	    //해시태그 추가 버튼 클릭 이벤트
 		$(".hashPlus").click(function(){
