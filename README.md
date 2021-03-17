@@ -26,6 +26,7 @@ Result is input to DB and making folder with csv file is created on the Desktop.
 ![filelist](https://user-images.githubusercontent.com/25974226/99886233-37e22100-2c7e-11eb-8577-0b5b57fe2d46.PNG)
 <br><br>
 **CSV 파일 내용 확인 Check the CSV file content**<br>
-![제주3](https://user-images.githubusercontent.com/25974226/99886226-3153a980-2c7e-11eb-8781-a0285231a776.PNG)
+![99886226-3153a980-2c7e-11eb-8781-a0285231a776](https://user-images.githubusercontent.com/25974226/111518222-3393c380-8799-11eb-935f-8989c4addf8f.png)
+
 <br><br>
 
