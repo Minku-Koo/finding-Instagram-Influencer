@@ -16,10 +16,11 @@ Result is input to DB and making folder with csv file is created on the Desktop.
 ------------------------------------------------------
 ## Example
 **메인 화면 Index Page**<br>
-![web-캡쳐](https://user-images.githubusercontent.com/25974226/99886216-23058d80-2c7e-11eb-97cb-121b212a11a7.PNG)
+![instagram2](https://user-images.githubusercontent.com/25974226/111517923-edd6fb00-8798-11eb-99e2-0237e0c5a4db.PNG)
+
 <br><br>
-**결과 화면 Result Page**<br>
-![web-결과](https://user-images.githubusercontent.com/25974226/99886220-2ac53200-2c7e-11eb-991d-94ee0aa60c87.PNG)
+**검색 결과 화면 Result Page**<br>
+![insta-result](https://user-images.githubusercontent.com/25974226/111517917-eca5ce00-8798-11eb-8e66-21bd9debc055.PNG)
 <br><br>
 **결과 파일 형태 Result File List**<br>
 ![filelist](https://user-images.githubusercontent.com/25974226/99886233-37e22100-2c7e-11eb-8577-0b5b57fe2d46.PNG)
